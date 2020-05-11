@@ -1,0 +1,5 @@
+{
+    "python.pythonPath": "/home/alta11/virtualenv/rest_training/bin/python",
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": true
+}

@@ -1,0 +1,96 @@
+[2020-04-16 19:05:43,660] {/home/alta11/virtualenv/rest_training/lib/python3.6/site-packages/flask/app.py:1892} ERROR - Exception on /user [POST]
+Traceback (most recent call last):
+  File "/home/alta11/virtualenv/rest_training/lib/python3.6/site-packages/flask/app.py", line 1950, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/alta11/virtualenv/rest_training/lib/python3.6/site-packages/flask/app.py", line 1936, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "/home/alta11/virtualenv/rest_training/lib/python3.6/site-packages/flask_restful/__init__.py", line 468, in wrapper
+    resp = resource(*args, **kwargs)
+  File "/home/alta11/virtualenv/rest_training/lib/python3.6/site-packages/flask/views.py", line 89, in view
+    return self.dispatch_request(*args, **kwargs)
+  File "/home/alta11/virtualenv/rest_training/lib/python3.6/site-packages/flask_restful/__init__.py", line 583, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "/home/alta11/fullstack5_alul/Restful_API/2-FlaskRouting_Controller_Blueprint/blueprints/user/resources.py", line 31, in post
+    hash_pass = hashlib.sha512(args)
+TypeError: object supporting the buffer API required
+[2020-04-16 19:05:43,663] {/home/alta11/fullstack5_alul/Restful_API/2-FlaskRouting_Controller_Blueprint/blueprints/__init__.py:52} ERROR - REQUEST_LOG	{"status_code": 500, "method": "POST", "code": "500 INTERNAL SERVER ERROR", "uri": "/user?", "request": {"name": "fast", "age": 20, "sex": "male", "client_id": 1, "password": "alterraacademy"}, "response": {"message": "Internal Server Error"}}
+[2020-04-16 19:07:24,802] {/home/alta11/virtualenv/rest_training/lib/python3.6/site-packages/flask/app.py:1892} ERROR - Exception on /user [POST]
+Traceback (most recent call last):
+  File "/home/alta11/virtualenv/rest_training/lib/python3.6/site-packages/flask/app.py", line 1950, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/alta11/virtualenv/rest_training/lib/python3.6/site-packages/flask/app.py", line 1936, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "/home/alta11/virtualenv/rest_training/lib/python3.6/site-packages/flask_restful/__init__.py", line 468, in wrapper
+    resp = resource(*args, **kwargs)
+  File "/home/alta11/virtualenv/rest_training/lib/python3.6/site-packages/flask/views.py", line 89, in view
+    return self.dispatch_request(*args, **kwargs)
+  File "/home/alta11/virtualenv/rest_training/lib/python3.6/site-packages/flask_restful/__init__.py", line 583, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "/home/alta11/fullstack5_alul/Restful_API/2-FlaskRouting_Controller_Blueprint/blueprints/user/resources.py", line 31, in post
+    hash_pass = hashlib.sha512(args['password'] + salt).hexdigest()
+TypeError: Unicode-objects must be encoded before hashing
+[2020-04-16 19:07:24,808] {/home/alta11/fullstack5_alul/Restful_API/2-FlaskRouting_Controller_Blueprint/blueprints/__init__.py:52} ERROR - REQUEST_LOG	{"status_code": 500, "method": "POST", "code": "500 INTERNAL SERVER ERROR", "uri": "/user?", "request": {"name": "fast", "age": 20, "sex": "male", "client_id": 1, "password": "alterraacademy"}, "response": {"message": "Internal Server Error"}}
+[2020-04-16 19:09:49,526] {/home/alta11/virtualenv/rest_training/lib/python3.6/site-packages/flask/app.py:1892} ERROR - Exception on /user [POST]
+Traceback (most recent call last):
+  File "/home/alta11/virtualenv/rest_training/lib/python3.6/site-packages/flask/app.py", line 1950, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/alta11/virtualenv/rest_training/lib/python3.6/site-packages/flask/app.py", line 1936, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "/home/alta11/virtualenv/rest_training/lib/python3.6/site-packages/flask_restful/__init__.py", line 468, in wrapper
+    resp = resource(*args, **kwargs)
+  File "/home/alta11/virtualenv/rest_training/lib/python3.6/site-packages/flask/views.py", line 89, in view
+    return self.dispatch_request(*args, **kwargs)
+  File "/home/alta11/virtualenv/rest_training/lib/python3.6/site-packages/flask_restful/__init__.py", line 583, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "/home/alta11/fullstack5_alul/Restful_API/2-FlaskRouting_Controller_Blueprint/blueprints/user/resources.py", line 33, in post
+    user = Users(args['name'],args['age'],args['sex'],args['client_id'],args['password'], salt, hash_pass)
+TypeError: __init__() takes 6 positional arguments but 8 were given
+[2020-04-16 19:09:49,530] {/home/alta11/fullstack5_alul/Restful_API/2-FlaskRouting_Controller_Blueprint/blueprints/__init__.py:52} ERROR - REQUEST_LOG	{"status_code": 500, "method": "POST", "code": "500 INTERNAL SERVER ERROR", "uri": "/user?", "request": {"name": "fast", "age": 20, "sex": "male", "client_id": 1, "password": "alterraacademy"}, "response": {"message": "Internal Server Error"}}
+[2020-04-16 19:10:21,155] {/home/alta11/virtualenv/rest_training/lib/python3.6/site-packages/flask/app.py:1892} ERROR - Exception on /user [POST]
+Traceback (most recent call last):
+  File "/home/alta11/virtualenv/rest_training/lib/python3.6/site-packages/flask/app.py", line 1950, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/alta11/virtualenv/rest_training/lib/python3.6/site-packages/flask/app.py", line 1936, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "/home/alta11/virtualenv/rest_training/lib/python3.6/site-packages/flask_restful/__init__.py", line 468, in wrapper
+    resp = resource(*args, **kwargs)
+  File "/home/alta11/virtualenv/rest_training/lib/python3.6/site-packages/flask/views.py", line 89, in view
+    return self.dispatch_request(*args, **kwargs)
+  File "/home/alta11/virtualenv/rest_training/lib/python3.6/site-packages/flask_restful/__init__.py", line 583, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "/home/alta11/fullstack5_alul/Restful_API/2-FlaskRouting_Controller_Blueprint/blueprints/user/resources.py", line 31, in post
+    hash_pass = hashlib.sha512(args['password'].encode('utf-8') + salt).hexdigest()
+TypeError: can't concat str to bytes
+[2020-04-16 19:10:21,158] {/home/alta11/fullstack5_alul/Restful_API/2-FlaskRouting_Controller_Blueprint/blueprints/__init__.py:52} ERROR - REQUEST_LOG	{"status_code": 500, "method": "POST", "code": "500 INTERNAL SERVER ERROR", "uri": "/user?", "request": {"name": "fast", "age": 20, "sex": "male", "client_id": 1, "password": "alterraacademy"}, "response": {"message": "Internal Server Error"}}
+[2020-04-16 19:10:42,260] {/home/alta11/virtualenv/rest_training/lib/python3.6/site-packages/flask/app.py:1892} ERROR - Exception on /user [POST]
+Traceback (most recent call last):
+  File "/home/alta11/virtualenv/rest_training/lib/python3.6/site-packages/flask/app.py", line 1950, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/alta11/virtualenv/rest_training/lib/python3.6/site-packages/flask/app.py", line 1936, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "/home/alta11/virtualenv/rest_training/lib/python3.6/site-packages/flask_restful/__init__.py", line 468, in wrapper
+    resp = resource(*args, **kwargs)
+  File "/home/alta11/virtualenv/rest_training/lib/python3.6/site-packages/flask/views.py", line 89, in view
+    return self.dispatch_request(*args, **kwargs)
+  File "/home/alta11/virtualenv/rest_training/lib/python3.6/site-packages/flask_restful/__init__.py", line 583, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "/home/alta11/fullstack5_alul/Restful_API/2-FlaskRouting_Controller_Blueprint/blueprints/user/resources.py", line 31, in post
+    hash_pass = hashlib.sha512(args['password'] + salt.encode('utf-8')).hexdigest()
+TypeError: must be str, not bytes
+[2020-04-16 19:10:42,263] {/home/alta11/fullstack5_alul/Restful_API/2-FlaskRouting_Controller_Blueprint/blueprints/__init__.py:52} ERROR - REQUEST_LOG	{"status_code": 500, "method": "POST", "code": "500 INTERNAL SERVER ERROR", "uri": "/user?", "request": {"name": "fast", "age": 20, "sex": "male", "client_id": 1, "password": "alterraacademy"}, "response": {"message": "Internal Server Error"}}
+[2020-04-16 19:13:29,171] {/home/alta11/virtualenv/rest_training/lib/python3.6/site-packages/flask/app.py:1892} ERROR - Exception on /user [POST]
+Traceback (most recent call last):
+  File "/home/alta11/virtualenv/rest_training/lib/python3.6/site-packages/flask/app.py", line 1950, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/alta11/virtualenv/rest_training/lib/python3.6/site-packages/flask/app.py", line 1936, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "/home/alta11/virtualenv/rest_training/lib/python3.6/site-packages/flask_restful/__init__.py", line 468, in wrapper
+    resp = resource(*args, **kwargs)
+  File "/home/alta11/virtualenv/rest_training/lib/python3.6/site-packages/flask/views.py", line 89, in view
+    return self.dispatch_request(*args, **kwargs)
+  File "/home/alta11/virtualenv/rest_training/lib/python3.6/site-packages/flask_restful/__init__.py", line 583, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "/home/alta11/fullstack5_alul/Restful_API/2-FlaskRouting_Controller_Blueprint/blueprints/user/resources.py", line 32, in post
+    sha.update(args['password'] + salt).encode('utf-8').hexdigest()
+TypeError: Unicode-objects must be encoded before hashing
+[2020-04-16 19:13:29,173] {/home/alta11/fullstack5_alul/Restful_API/2-FlaskRouting_Controller_Blueprint/blueprints/__init__.py:52} ERROR - REQUEST_LOG	{"status_code": 500, "method": "POST", "code": "500 INTERNAL SERVER ERROR", "uri": "/user?", "request": {"name": "fast", "age": 20, "sex": "male", "client_id": 1, "password": "alterraacademy"}, "response": {"message": "Internal Server Error"}}
