@@ -18,6 +18,8 @@ api_public = Api(bp_game_public)
 
 
 class GameResource(Resource):
+    def options(self, id=None):
+        return {'status': 'ok'}, 200
 
     @seller_required
     def post(self):
@@ -25,7 +27,8 @@ class GameResource(Resource):
         parser = reqparse.RequestParser()
 
         parser.add_argument('name', location='json', required=True)
-        parser.add_argument('icon', location='json', required=True)
+        parser.add_argument('tile', location='json', required=True)
+        parser.add_argument('banner', location='json', required=True)
         parser.add_argument('publisher', location='json', required=True)
         parser.add_argument('description', location='json', required=True)
         parser.add_argument('category', location='json',
@@ -34,15 +37,16 @@ class GameResource(Resource):
         parser.add_argument('appstore', location='json')
         parser.add_argument('website', location='json')
         parser.add_argument('community', location='json')
-        parser.add_argument('promo', location='json')
+        parser.add_argument('promo', location='json', type=bool)
         parser.add_argument('discount', location='json')
-        parser.add_argument('sold', location='json')
+        # parser.add_argument('sold', location='json')
 
         args = parser.parse_args()
-        game = Games(args['name'], args['icon'], args['publisher'],
+        game = Games(args['name'], args['tile'], args['banner'], args['publisher'],
                      args['description'], args['category'], args['gplay'],
                      args['appstore'], args['website'], args['community'],
-                     args['promo'], args['discount'], args['sold'], claims['id'])
+                     args['promo'], args['discount']  # , args['sold']
+                     )
         db.session.add(game)
         db.session.commit()
 
@@ -51,14 +55,14 @@ class GameResource(Resource):
         return marshal(game, Games.response_fields), 200, {'Content-Type': 'application/json'}
 
     @seller_required
-    def patch(self, game):
+    def patch(self, id):
         parser = reqparse.RequestParser()
-        parser.add_argument('name', location='json', required=True)
-        parser.add_argument('icon', location='json', required=True)
-        parser.add_argument('publisher', location='json', required=True)
-        parser.add_argument('description', location='json', required=True)
-        parser.add_argument('category', location='json',
-                            required=True, choices=('mobile', 'pc', 'credits'))
+        parser.add_argument('name', location='json')
+        parser.add_argument('tile', location='json')
+        parser.add_argument('banner', location='json')
+        parser.add_argument('publisher', location='json')
+        parser.add_argument('description', location='json')
+        parser.add_argument('category', location='json', choices=('mobile', 'pc', 'credits'))
         parser.add_argument('gplay', location='json')
         parser.add_argument('appstore', location='json')
         parser.add_argument('website', location='json')
@@ -69,13 +73,13 @@ class GameResource(Resource):
 
         args = parser.parse_args()
 
-        qry = Games.query.Games.query.filter_by(
-            name=game.lower().replace('-', ' ')).first()
+        qry = Games.query.get(id).first()
         if qry is None:
             return {'status': 'NOT_FOUND'}, 404
 
         qry.name = args['name']
-        qry.icon = args['icon']
+        qry.tile = args['tile']
+        qry.banner = args['banner']
         qry.publisher = args['publisher']
         qry.description = args['description']
         qry.category = args['category']
@@ -91,9 +95,13 @@ class GameResource(Resource):
         return marshal(qry, Games.response_fields), 200, {'Content-Type': 'application/json'}
 
     @seller_required
-    def delete(self, game):
-        qry = Games.query.Games.query.filter_by(
-            name=game.lower().replace('-', ' ')).first()
+    def delete(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('name', location='args', required=True)
+        args = parser.parse_args()
+
+        qry = Games.query.filter_by(
+            name=args['name']).first()
         if qry is None:
             return {'status': 'NOT_FOUND'}, 404
 
@@ -104,16 +112,19 @@ class GameResource(Resource):
 
 
 class GameDetailResource(Resource):
+    def options(self, id=None):
+        return {'status': 'ok'}, 200
 
-    def get(self, game):
-        qry = Games.query.filter_by(
-            name=game.lower().replace('-', ' ')).first()
+    def get(self, id):
+        qry = Games.query.get(id=id).first()
         if qry is not None:
             return marshal(qry, Games.response_fields), 200
         return {'status': 'NOT_FOUND'}, 404
 
 
 class GameFilterResource(Resource):
+    def options(self, id=None):
+        return {'status': 'ok'}, 200
 
     def get(self):
         parser = reqparse.RequestParser()
@@ -171,6 +182,8 @@ class GameFilterResource(Resource):
 
 
 class GamePromoResource(Resource):
+    def options(self, id=None):
+        return {'status': 'ok'}, 200
 
     def get(self):
         parser = reqparse.RequestParser()
@@ -214,6 +227,8 @@ class GamePromoResource(Resource):
 
 
 class GameSearchResource(Resource):
+    def options(self, id=None):
+        return {'status': 'ok'}, 200
 
     def get(self):
         parser = reqparse.RequestParser()
@@ -262,6 +277,8 @@ class GameSearchResource(Resource):
 
 
 class GamePopularResource(Resource):
+    def options(self, id=None):
+        return {'status': 'ok'}, 200
 
     def get(self):
         parser = reqparse.RequestParser()
@@ -283,6 +300,8 @@ class GamePopularResource(Resource):
 
 
 class GameVoucherResource(Resource):
+    def options(self, id=None):
+        return {'status': 'ok'}, 200
 
     def get(self, game):
         gameName = Games.query.filter_by(
@@ -352,6 +371,8 @@ class GameVoucherResource(Resource):
 
 
 class GameVoucherListResource(Resource):
+    def options(self, id=None):
+        return {'status': 'ok'}, 200
 
     def get(self):
         parser = reqparse.RequestParser()
@@ -395,10 +416,10 @@ class GameVoucherListResource(Resource):
         return rows, 200
 
 
-api.add_resource(GameResource, '', '/<game>')
+api.add_resource(GameResource, '')
 
-api_public.add_resource(GameDetailResource, '/<game>')
-api_public.add_resource(GameFilterResource, '/filter')
+api_public.add_resource(GameDetailResource, '/<id>')
+api_public.add_resource(GameFilterResource, '')
 api_public.add_resource(GamePromoResource, '/promo')
 api_public.add_resource(GameSearchResource, '/search')
 api_public.add_resource(GamePopularResource, '/popular')

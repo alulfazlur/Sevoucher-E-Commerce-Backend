@@ -14,18 +14,19 @@ class Games(db.Model):
     __tablename__ = "games"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(100), nullable=False, unique=True)
-    icon = db.Column(db.String(255), default='')
+    tile = db.Column(db.String(255), default='')
+    banner = db.Column(db.String(255), default='')
     publisher = db.Column(db.String(20), nullable=False)
-    description = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.Text , nullable=False)
     category = db.Column(db.String(100), nullable=False)
-    gplay = db.Column(db.String(255))
-    appstore = db.Column(db.String(255))
-    website = db.Column(db.String(255), nullable=False)
-    community = db.Column(db.String(255))
-    promo = db.Column(db.Boolean, default=False)
+    gplay = db.Column(db.String(255),nullable=True)
+    appstore = db.Column(db.String(255),nullable=True)
+    website = db.Column(db.String(255), nullable=True)
+    community = db.Column(db.String(255) ,nullable=True)
+    promo = db.Column(db.Boolean, default=False, server_default="false")
     discount = db.Column(db.Integer, default=0)
     sold = db.Column(db.Integer, default=0)
-    seller_id = db.Column(db.Integer, db.ForeignKey('sellers.id'))
+    # seller_id = db.Column(db.Integer, db.ForeignKey('sellers.id'))
 
     voucher = db.relationship(
         'GameVouchers', backref='games', lazy=True, uselist=False, cascade="all, delete-orphan")
@@ -39,10 +40,11 @@ class Games(db.Model):
     response_fields = {
         'id': fields.Integer,
         'name': fields.String,
-        'icon': fields.String,
-        'publisher': fields.Integer,
+        'tile': fields.String,
+        'banner': fields.String,
+        'publisher': fields.String,
         'description': fields.String,
-        'category': fields.Integer,
+        'category': fields.String,
         'gplay': fields.String,
         'appstore': fields.String,
         'website': fields.String,
@@ -52,11 +54,14 @@ class Games(db.Model):
         'sold': fields.Integer
     }
 
-    def __init__(self, name, icon, publisher, description,
+    def __init__(self, name, tile, banner, publisher, description,
                  category, gplay, appstore, website, community,
-                 promo, discount, sold):
+                 promo, discount
+                 #  ,sold
+                 ):
         self.name = name
-        self.icon = icon
+        self.tile = tile
+        self.banner = banner
         self.publisher = publisher
         self.description = description
         self.category = category
@@ -66,7 +71,7 @@ class Games(db.Model):
         self.community = community
         self.promo = promo
         self.discount = discount
-        self.sold = sold
+        # self.sold = sold
 
     def __repr__(self):
         return '<Games %r>' % self.id
@@ -76,7 +81,7 @@ class GameVouchers(db.Model):
     __tablename__ = "game_vouchers"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     game_id = db.Column(db.Integer, db.ForeignKey('games.id'))
-    voucher = db.Column(db.String(100), nullable=False)
+    voucher = db.Column(db.String(255), nullable=False)
     price = db.Column(db.String(255), default='')
 
     transaction_details = db.relationship(

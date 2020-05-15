@@ -12,7 +12,7 @@ from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager
-
+from flask_cors import CORS
 
 app = Flask(__name__)
 flaskenv = os.environ.get('FLASK_ENV', 'Production')
@@ -29,6 +29,9 @@ manager = Manager(app)
 manager.add_command('db', MigrateCommand)
 
 jwt = JWTManager(app)
+CORS(app, origins="*", allow_headers=[
+    "Content-Type", "Authorization", "Access-Control-Allow-Credentials"],
+    supports_credentials=True, intercept_exceptions=False)
 
 
 def seller_required(fn):
@@ -53,6 +56,14 @@ def buyer_required(fn):
         else:
             return fn(*args, **kwargs)
     return wrapper
+
+
+@app.before_request
+def before_request():
+    if request.method != 'OPTIONS':
+        pass
+    else:
+        return {}, 200, {'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': '*', 'Access-Control-Allow-Methods': '*'}
 
 
 @app.after_request
@@ -84,17 +95,15 @@ def after_request(response):
 
 from blueprints.auth import bp_auth
 from blueprints.cart.resources import bp_cart
-from blueprints.user.resources import bp_account
+from blueprints.user.resources import bp_user
 from blueprints.game.resources import bp_game, bp_game_public
 from blueprints.seller.resources import bp_seller
-from blueprints.buyer.resources import bp_buyer
 
 app.register_blueprint(bp_auth, url_prefix='/login')
-app.register_blueprint(bp_buyer, url_prefix='/users')
-app.register_blueprint(bp_game_public, url_prefix='/public/game')
 app.register_blueprint(bp_seller, url_prefix='/admin')
 app.register_blueprint(bp_game, url_prefix='/admin/game')
+app.register_blueprint(bp_game_public, url_prefix='/public/game')
+app.register_blueprint(bp_user, url_prefix='/user')
 app.register_blueprint(bp_cart, url_prefix='/cart')
-app.register_blueprint(bp_account, url_prefix='/account')
 
 db.create_all()

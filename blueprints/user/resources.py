@@ -10,26 +10,35 @@ from sqlalchemy import desc
 
 from .model import Users
 
-bp_account = Blueprint('account', __name__)
-api = Api(bp_account)
+bp_user = Blueprint('user', __name__)
+api = Api(bp_user)
 
 
-class UserResource(Resource):
+class UserResourceSignUp(Resource):
+    def options(self, id=None):
+        return {'status': 'ok'}, 200
 
     def post(self):
         parser = reqparse.RequestParser()
 
         parser.add_argument('username', location='json', required=True)
         parser.add_argument('password', location='json', required=True)
-        parser.add_argument('status', location='json',
-                            required=True, choices=('seller', 'buyer'))
+        parser.add_argument('name', location='json', required=True)
+        parser.add_argument('email', location='json', required=True)
+        # parser.add_argument('avatar', location='json')
+        parser.add_argument('address', location='json', required=True)
+        parser.add_argument('phone', location='json', required=True)
+        parser.add_argument('status', location='json')
+
         args = parser.parse_args()
 
         salt = uuid.uuid4().hex
         encoded = ('%s%s' % (args['password'], salt)).encode('utf-8')
         hash_pass = hashlib.sha512(encoded).hexdigest()
 
-        user = Users(args['username'], hash_pass, args['status'], salt)
+        user = Users(args['username'], hash_pass, args['name'], args['email'],
+                    #  args['avatar'], 
+                     args['address'], args['phone'], args['status'], salt)
         db.session.add(user)
         db.session.commit()
 
@@ -37,27 +46,43 @@ class UserResource(Resource):
 
         return marshal(user, Users.response_fields), 200, {'Content-Type': 'application/json'}
 
-    def get(self, id):
-        qry = Users.query.get(id)
+
+class UserResource(Resource):
+    def options(self, id=None):
+        return {'status': 'ok'}, 200
+
+    @buyer_required
+    def get(self):
+        claims = get_jwt_claims()
+        userId = claims['id']
+        qry = Users.query.filter_by(id=userId).first()
         if qry is not None:
             return marshal(qry, Users.response_fields), 200
         return {'status': 'NOT_FOUND'}, 404
 
-    @seller_required
-    def patch(self, id):
+    @buyer_required
+    def patch(self):
         parser = reqparse.RequestParser()
         parser.add_argument('username', location='json')
         parser.add_argument('password', location='json')
-        parser.add_argument('status', location='json',
-                            choices=('seller', 'buyer'))
+        parser.add_argument('name', location='json')
+        parser.add_argument('email', location='json')
+        # parser.add_argument('avatar', location='json')
+        parser.add_argument('address', location='json')
+        parser.add_argument('phone', location='json')
         args = parser.parse_args()
 
-        qry = Users.query.get(id)
-        if qry is None:
-            return {'status': 'NOT_FOUND'}, 404
-
+        claims = get_jwt_claims()
+        userId = claims['id']
+        qry = Users.query.filter_by(id=userId).first()
+        
         qry.username = args['username']
         qry.password = args['password']
+        qry.name = args['name']
+        qry.email = args['email']
+        # qry.email = args['avatar']
+        qry.address = args['address']
+        qry.phone = args['phone']
         qry.status = args['status']
         db.session.commit()
 
@@ -76,6 +101,9 @@ class UserResource(Resource):
 
 
 class UserList(Resource):
+    def options(self, id=None):
+        return {'status': 'ok'}, 200
+
     @seller_required
     def get(self):
         parser = reqparse.RequestParser()
@@ -83,7 +111,7 @@ class UserList(Resource):
         parser.add_argument('rp', type=int, location='args', default=25)
         parser.add_argument('status', location='args', help='invalid status')
         parser.add_argument('orderby', location='args',
-                            help='invalid orderby value', choices=('id', 'status'))
+                            help='invalid orderby value', choices=('id', 'user_id', 'name'))
         parser.add_argument('sort', location='args',
                             help='invalid sort value', choices=('desc', 'asc'))
 
@@ -93,13 +121,7 @@ class UserList(Resource):
 
         qry = Users.query
 
-        # Filter status
-        if args['status'] is not None:
-            if args['status'].lower() == 'seller':
-                qry = qry.filter_by(status="seller")
-            else:
-                qry = qry.filter_by(status="buyer")
-
+        # Orderby
         # Orderby
         if args['orderby'] is not None:
             if args['orderby'] == 'id':
@@ -108,11 +130,17 @@ class UserList(Resource):
                 else:
                     qry = qry.order_by(Users.id)
 
-            elif args['orderby'] == 'status':
+            elif args['orderby'] == 'user_id':
                 if args['sort'] == 'desc':
-                    qry = qry.order_by(desc(Users.status))
+                    qry = qry.order_by(desc(Users.user_id))
                 else:
-                    qry = qry.order_by(Users.status)
+                    qry = qry.order_by(Users.user_id)
+
+            else:
+                if args['sort'] == 'desc':
+                    qry = qry.order_by(desc(Users.name))
+                else:
+                    qry = qry.order_by(Users.name)
 
         rows = []
         for row in qry.limit(args['rp']).offset(offset).all():
@@ -122,4 +150,5 @@ class UserList(Resource):
 
 
 api.add_resource(UserList, '/list')
-api.add_resource(UserResource, '', '/<id>')
+api.add_resource(UserResourceSignUp, '')
+api.add_resource(UserResource, '/me', '/<id>')

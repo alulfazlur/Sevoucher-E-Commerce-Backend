@@ -11,37 +11,56 @@ from sqlalchemy.orm import backref
 
 
 class Sellers(db.Model):
-    __tablename__ = "sellers"
+    __tablename__ = "admin"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+
+    username = db.Column(db.String(20), nullable=False, unique=True)
+    password = db.Column(db.String(255), nullable=False)
+
     name = db.Column(db.String(100), nullable=False)
-    bank_account = db.Column(db.Integer, nullable=False)
     email = db.Column(db.String(100), nullable=False)
+    # avatar = db.Column(db.String(255))
     address = db.Column(db.String(255), nullable=False)
-    phone = db.Column(db.Integer, nullable=False)
+    phone = db.Column(db.String(13), nullable=False)
 
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    game = db.relationship(
-        'Games', backref='sellers', lazy=True, uselist=False, cascade="all, delete-orphan")
-
+    status = db.Column(db.String(20), nullable=False, default="seller")
+    salt = db.Column(db.String(255))
     created_at = db.Column(db.DateTime(timezone=True),
                            server_default=func.now())
     updated_at = db.Column(db.DateTime(timezone=True), onupdate=func.now())
 
+    # game = db.relationship('Games', backref='admin', lazy=True, uselist=False, cascade="all, delete-orphan")
+
     response_fields = {
         'id': fields.Integer,
+        'username': fields.String,
+        'password': fields.String,
         'name': fields.String,
-        'email': fields.Integer,
+        'email': fields.String,
+        # 'avatar': fields.String,
         'address': fields.String,
-        'phone': fields.Integer,
-        'user_id': fields.Integer
+        'phone': fields.String,
+        'status': fields.String
     }
 
-    def __init__(self, name, email, address, phone, user_id):
+    jwt_user_fields = {
+        'id': fields.Integer,
+        'username': fields.String,
+        'status': fields.String
+    }
+
+    def __init__(self, username, password, name, email,
+                 # avatar,
+                 address, phone, status, salt):
+        self.username = username
+        self.password = password
         self.name = name
         self.email = email
+        # self.avatar = avatar
         self.address = address
         self.phone = phone
-        self.user_id = user_id
+        self.status = status
+        self.salt = salt
 
     def __repr__(self):
         return '<Sellers %r>' % self.id

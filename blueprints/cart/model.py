@@ -13,7 +13,7 @@ from sqlalchemy.orm import backref
 class Carts(db.Model):
     __tablename__ = "carts"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("buyers.id"))
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     game_id = db.Column(db.Integer, db.ForeignKey("games.id"))
     item_price = db.Column(db.Integer, default=0)
     payment_id = db.Column(db.Integer, db.ForeignKey("payments.id"))
@@ -78,23 +78,28 @@ class Payments(db.Model):
 class TransactionDetails(db.Model):
     __tablename__ = "transactiondetails"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    voucher_id = db.Column(db.Integer, db.ForeignKey("game_vouchers.id"))
     cart_id = db.Column(db.Integer, db.ForeignKey("carts.id"))
+    voucher_id = db.Column(db.Integer, db.ForeignKey("game_vouchers.id"))
+    price = db.Column(db.Integer, default=0)
+    quantity = db.Column(db.Integer, default=0)
     created_at = db.Column(db.DateTime, default=datetime.now())
     updated_at = db.Column(db.DateTime, default=datetime.now())
 
     response_fields = {
+        "id": fields.Integer,
+        "cart_id": fields.Integer,
+        "voucher_id": fields.Integer,
+        "price": fields.Integer,
+        "quantity": fields.Integer,
         "created_at": fields.DateTime,
         "updated_at": fields.DateTime,
-        "id": fields.Integer,
-        "voucher_id": fields.Integer,
-        "cart_id": fields.Integer,
-        "price": fields.Integer,
     }
 
-    def __init__(self, voucher_id, cart_id):
-        self.voucher_id = voucher_id
+    def __init__(self, cart_id, voucher_id, price, quantity):
         self.cart_id = cart_id
+        self.voucher_id = voucher_id
+        self.price = price
+        self.quantity = quantity
 
     def __repr__(self):
         return "<TransactionDetails %r>" % self.id
