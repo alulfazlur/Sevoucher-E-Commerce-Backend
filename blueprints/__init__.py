@@ -96,13 +96,14 @@ def after_request(response):
 from blueprints.auth import bp_auth
 from blueprints.cart.resources import bp_cart
 from blueprints.user.resources import bp_user
-from blueprints.game.resources import bp_game, bp_game_public
+from blueprints.game.resources import bp_game, bp_game_public, bp_voucher_public
 from blueprints.seller.resources import bp_seller
 
 app.register_blueprint(bp_auth, url_prefix='/login')
 app.register_blueprint(bp_seller, url_prefix='/admin')
 app.register_blueprint(bp_game, url_prefix='/admin/game')
 app.register_blueprint(bp_game_public, url_prefix='/public/game')
+app.register_blueprint(bp_voucher_public, url_prefix='/public/game/voucher')
 app.register_blueprint(bp_user, url_prefix='/user')
 app.register_blueprint(bp_cart, url_prefix='/cart')
 

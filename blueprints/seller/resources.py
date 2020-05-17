@@ -28,7 +28,6 @@ class SellerResourceSignUp(Resource):
         # parser.add_argument('avatar', location='json')
         parser.add_argument('address', location='json', required=True)
         parser.add_argument('phone', location='json', required=True)
-        parser.add_argument('status', location='json')
 
         args = parser.parse_args()
 
@@ -63,13 +62,13 @@ class SellerResource(Resource):
         return {'status': 'NOT_FOUND'}, 404
 
     @seller_required
-    def patch(self):
+    def put(self):
         parser = reqparse.RequestParser()
         parser.add_argument('name', location='json')
-        parser.add_argument('bank_account', location='json')
         parser.add_argument('email', location='json')
         parser.add_argument('address', location='json')
         parser.add_argument('phone', location='json')
+
         args = parser.parse_args()
 
         claims = get_jwt_claims()
@@ -77,14 +76,17 @@ class SellerResource(Resource):
         qry = Sellers.query.filter_by(id=userId).first()
         if qry is None:
             return {'status': 'NOT_FOUND'}, 404
-        if qry is None:
-            return {'status': 'NOT_FOUND'}, 404
 
-        qry.name = args['name']
-        qry.bank_account = args['bank_account']
-        qry.email = args['email']
-        qry.address = args['address']
-        qry.phone = args['phone']
+        if args['name'] is not None:
+            qry.name = args['name']
+        if args['email'] is not None:
+            qry.email = args['email']
+        if args['address'] is not None:
+            qry.address = args['address']
+        if args['phone'] is not None:
+            qry.phone = args['phone']
+        # if args['avatar'] is not None:
+            # qry.name = args['avatar']
         db.session.commit()
 
         return marshal(qry, Sellers.response_fields), 200, {'Content-Type': 'application/json'}

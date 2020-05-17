@@ -32,7 +32,9 @@ class Games(db.Model):
         'GameVouchers', backref='games', lazy=True, uselist=False, cascade="all, delete-orphan")
     cart = db.relationship(
         'Carts', backref='games', lazy=True, uselist=False, cascade="all, delete-orphan")
-
+    transaction_details = db.relationship(
+        'TransactionDetails', backref='games', lazy=True, uselist=False, cascade="all, delete-orphan")
+    
     created_at = db.Column(db.DateTime(timezone=True),
                            server_default=func.now())
     updated_at = db.Column(db.DateTime(timezone=True), onupdate=func.now())
@@ -82,7 +84,7 @@ class GameVouchers(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     game_id = db.Column(db.Integer, db.ForeignKey('games.id'))
     voucher = db.Column(db.String(255), nullable=False)
-    price = db.Column(db.String(255), default='')
+    price = db.Column(db.Integer, default=0)
 
     transaction_details = db.relationship(
         'TransactionDetails', backref='game_vouchers', lazy=True, uselist=False, cascade="all, delete-orphan")

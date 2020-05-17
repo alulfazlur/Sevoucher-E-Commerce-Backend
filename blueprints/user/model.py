@@ -18,7 +18,7 @@ class Users(db.Model):
 
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), nullable=False, unique=True)
-    # avatar = db.Column(db.String(255))
+    avatar = db.Column(db.String(255))
     address = db.Column(db.String(255), nullable=False)
     phone = db.Column(db.String(13), nullable=False, unique=True)
 
@@ -37,7 +37,7 @@ class Users(db.Model):
         'password': fields.String,
         'name': fields.String,
         'email': fields.String,
-        # 'avatar': fields.String,
+        'avatar': fields.String,
         'address': fields.String,
         'phone': fields.String,
         'status': fields.String
@@ -50,13 +50,13 @@ class Users(db.Model):
     }
 
     def __init__(self, username, password, name, email,
-    #  avatar, 
+     avatar, 
      address, phone, status, salt):
         self.username = username
         self.password = password
         self.name = name
         self.email = email
-        # self.avatar = avatar
+        self.avatar = avatar
         self.address = address
         self.phone = phone
         self.status = status

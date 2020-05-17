@@ -15,11 +15,13 @@ class Carts(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     game_id = db.Column(db.Integer, db.ForeignKey("games.id"))
-    item_price = db.Column(db.Integer, default=0)
     payment_id = db.Column(db.Integer, db.ForeignKey("payments.id"))
     # payment_id = db.Column(db.Integer)
     payment_status = db.Column(db.Boolean, default=False)
     total_price = db.Column(db.Integer, default=0)
+    total_price_item = db.Column(db.Integer, default=0)
+    payment = db.Column(db.String(255), default='')
+    operator = db.Column(db.String(255), default='')
     status = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.now())
     updated_at = db.Column(db.DateTime, default=datetime.now())
@@ -31,8 +33,11 @@ class Carts(db.Model):
         "user_id": fields.Integer,
         "game_id": fields.Integer,
         "item_price": fields.Integer,
-        "payment_id": fields.Integer,
+        "payment": fields.String,
+        "operator": fields.String,
         "payment_status": fields.Boolean,
+        "total_price_item": fields.Integer,
+        "total_price": fields.Integer,
         "status": fields.Boolean
     }
 
@@ -79,15 +84,19 @@ class TransactionDetails(db.Model):
     __tablename__ = "transactiondetails"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     cart_id = db.Column(db.Integer, db.ForeignKey("carts.id"))
+    game_id = db.Column(db.Integer, db.ForeignKey("games.id"))
+    ign = db.Column(db.String(255), nullable=False)
     voucher_id = db.Column(db.Integer, db.ForeignKey("game_vouchers.id"))
-    price = db.Column(db.Integer, default=0)
     quantity = db.Column(db.Integer, default=0)
+    price = db.Column(db.Integer, default=0)
     created_at = db.Column(db.DateTime, default=datetime.now())
     updated_at = db.Column(db.DateTime, default=datetime.now())
 
     response_fields = {
         "id": fields.Integer,
         "cart_id": fields.Integer,
+        "game_id": fields.Integer,
+        "ign": fields.String,
         "voucher_id": fields.Integer,
         "price": fields.Integer,
         "quantity": fields.Integer,
@@ -95,11 +104,13 @@ class TransactionDetails(db.Model):
         "updated_at": fields.DateTime,
     }
 
-    def __init__(self, cart_id, voucher_id, price, quantity):
+    def __init__(self, cart_id, game_id, ign, voucher_id, quantity, price ):
         self.cart_id = cart_id
+        self.game_id = game_id
+        self.ign = ign
         self.voucher_id = voucher_id
-        self.price = price
         self.quantity = quantity
+        self.price = price
 
     def __repr__(self):
         return "<TransactionDetails %r>" % self.id

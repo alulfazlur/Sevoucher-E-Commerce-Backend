@@ -16,6 +16,8 @@ api = Api(bp_game)
 bp_game_public = Blueprint('public game', __name__)
 api_public = Api(bp_game_public)
 
+bp_voucher_public = Blueprint('public voucher', __name__)
+api_public_voucher = Api(bp_voucher_public)
 
 class GameResource(Resource):
     def options(self, id=None):
@@ -55,9 +57,10 @@ class GameResource(Resource):
         return marshal(game, Games.response_fields), 200, {'Content-Type': 'application/json'}
 
     @seller_required
-    def patch(self, id):
+    def put(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('name', location='json')
+        parser.add_argument('name', location='json', required=True)
+        parser.add_argument('newName', location='json')
         parser.add_argument('tile', location='json')
         parser.add_argument('banner', location='json')
         parser.add_argument('publisher', location='json')
@@ -67,29 +70,43 @@ class GameResource(Resource):
         parser.add_argument('appstore', location='json')
         parser.add_argument('website', location='json')
         parser.add_argument('community', location='json')
-        parser.add_argument('promo', location='json')
+        parser.add_argument('promo', location='json', type=bool)
         parser.add_argument('discount', location='json')
         parser.add_argument('sold', location='json')
 
         args = parser.parse_args()
 
-        qry = Games.query.get(id).first()
+        qry = Games.query.filter_by(
+            name=args['name']).first()
         if qry is None:
             return {'status': 'NOT_FOUND'}, 404
-
-        qry.name = args['name']
-        qry.tile = args['tile']
-        qry.banner = args['banner']
-        qry.publisher = args['publisher']
-        qry.description = args['description']
-        qry.category = args['category']
-        qry.gplay = args['gplay']
-        qry.appstore = args['appstore']
-        qry.website = args['website']
-        qry.community = args['community']
-        qry.promo = args['promo']
-        qry.discount = args['discount']
-        qry.sold = args['sold']
+        
+        if args['newName'] is not None:
+            qry.name = args['newName']
+        if args['tile'] is not None:
+            qry.tile = args['tile']
+        if args['banner'] is not None:
+            qry.banner = args['banner']
+        if args['publisher'] is not None:
+            qry.publisher = args['publisher']
+        if args['description'] is not None:
+            qry.description = args['description']
+        if args['category'] is not None:
+            qry.category = args['category']
+        if args['gplay'] is not None:
+            qry.gplay = args['gplay']
+        if args['appstore'] is not None:
+            qry.appstore = args['appstore']
+        if args['website'] is not None:
+            qry.website = args['website']
+        if args['community'] is not None:
+            qry.community = args['community']
+        if args['promo'] is not None:
+            qry.promo = args['promo']
+        if args['discount'] is not None:
+            qry.discount = args['discount']
+        if args['sold'] is not None:
+            qry.sold = args['sold']
 
         db.session.commit()
         return marshal(qry, Games.response_fields), 200, {'Content-Type': 'application/json'}
@@ -115,186 +132,17 @@ class GameDetailResource(Resource):
     def options(self, id=None):
         return {'status': 'ok'}, 200
 
-    def get(self, id):
-        qry = Games.query.get(id=id).first()
+    def get(self):
+        parser = reqparse.RequestParser()
+        # parser.add_argument('name', location='args', required=True)
+        args = parser.parse_args()
+
+        qry = Games.query.all()
+        # .filter_by(
+        #     name=args['name']).first()
         if qry is not None:
             return marshal(qry, Games.response_fields), 200
         return {'status': 'NOT_FOUND'}, 404
-
-
-class GameFilterResource(Resource):
-    def options(self, id=None):
-        return {'status': 'ok'}, 200
-
-    def get(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument('p', type=int, location='args', default=1)
-        parser.add_argument('rp', type=int, location='args', default=25)
-        parser.add_argument('publisher', location='args',
-                            help='invalid publisher')
-        parser.add_argument('category', location='args',
-                            help='invalid category', choices=('mobile', 'pc', 'credits'))
-        parser.add_argument('promo', location='args',
-                            help='invalid promo')
-        parser.add_argument('orderby', location='args',
-                            help='invalid orderby value', choices=('id', 'name', 'publisher'))
-        parser.add_argument('sort', location='args',
-                            help='invalid sort value', choices=('desc', 'asc'))
-
-        args = parser.parse_args()
-        offset = (args['p'] * args['rp'] - args['rp'])
-
-        qry = Games.query
-
-        # Filter publisher
-        if args['publisher'] is not None:
-            qry = qry.filter_by(publisher=args['publisher'])
-
-        # Filter category
-        if args['category'] is not None:
-            qry = qry.filter_by(category=args['category'])
-
-        # Orderby
-        if args['orderby'] is not None:
-            if args['orderby'] == 'id':
-                if args['sort'] == 'desc':
-                    qry = qry.order_by(desc(Games.id))
-                else:
-                    qry = qry.order_by(Games.id)
-
-            elif args['orderby'] == 'name':
-                if args['sort'] == 'desc':
-                    qry = qry.order_by(desc(Games.name))
-                else:
-                    qry = qry.order_by(Games.name)
-
-            elif args['orderby'] == 'publisher':
-                if args['sort'] == 'desc':
-                    qry = qry.order_by(desc(Games.publisher))
-                else:
-                    qry = qry.order_by(Games.publisher)
-
-        rows = []
-        for row in qry.limit(args['rp']).offset(offset).all():
-            rows.append(marshal(row, Games.response_fields))
-
-        return rows, 200
-
-
-class GamePromoResource(Resource):
-    def options(self, id=None):
-        return {'status': 'ok'}, 200
-
-    def get(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument('p', type=int, location='args', default=1)
-        parser.add_argument('rp', type=int, location='args', default=25)
-        parser.add_argument('orderby', location='args',
-                            help='invalid orderby value', choices=('id', 'name', 'publisher'))
-        parser.add_argument('sort', location='args',
-                            help='invalid sort value', choices=('desc', 'asc'))
-
-        args = parser.parse_args()
-        offset = (args['p']*args['rp'])-args['rp']
-
-        qry = Games.query.filter_by(promo=True)
-
-        # Orderby
-        if args['orderby'] is not None:
-            if args['orderby'] == 'id':
-                if args['sort'] == 'desc':
-                    qry = qry.order_by(desc(Games.id))
-                else:
-                    qry = qry.order_by(Games.id)
-
-            elif args['orderby'] == 'name':
-                if args['sort'] == 'desc':
-                    qry = qry.order_by(desc(Games.name))
-                else:
-                    qry = qry.order_by(Games.name)
-
-            elif args['orderby'] == 'publisher':
-                if args['sort'] == 'desc':
-                    qry = qry.order_by(desc(Games.publisher))
-                else:
-                    qry = qry.order_by(Games.publisher)
-
-        rows = []
-        for row in qry.limit(args['rp']).offset(offset).all():
-            rows.append(marshal(row, Games.response_fields))
-
-        return rows, 200
-
-
-class GameSearchResource(Resource):
-    def options(self, id=None):
-        return {'status': 'ok'}, 200
-
-    def get(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument('p', type=int, location='args', default=1)
-        parser.add_argument('rp', type=int, location='args', default=25)
-        parser.add_argument("q", location="args")
-        parser.add_argument('orderby', location='args',
-                            help='invalid orderby value', choices=('id', 'name', 'publisher'))
-        parser.add_argument('sort', location='args',
-                            help='invalid sort value', choices=('desc', 'asc'))
-
-        args = parser.parse_args()
-        offset = (args['p']*args['rp'])-args['rp']
-
-        if args['keyword'] is not None:
-            qry = Games.query.filter(Games.name.like("%"+args['keyword']+"%") |
-                                     Games.category.like("%"+args['keyword']+"%") |
-                                     Games.publisher.like("%"+args['keyword']+"%") |
-                                     Games.description.like("%"+args['keyword']+"%"))
-
-        # Orderby
-        if args['orderby'] is not None:
-            if args['orderby'] == 'id':
-                if args['sort'] == 'desc':
-                    qry = qry.order_by(desc(Games.id))
-                else:
-                    qry = qry.order_by(Games.id)
-
-            elif args['orderby'] == 'name':
-                if args['sort'] == 'desc':
-                    qry = qry.order_by(desc(Games.name))
-                else:
-                    qry = qry.order_by(Games.name)
-
-            elif args['orderby'] == 'publisher':
-                if args['sort'] == 'desc':
-                    qry = qry.order_by(desc(Games.publisher))
-                else:
-                    qry = qry.order_by(Games.publisher)
-
-        rows = []
-        for row in qry.limit(args['rp']).offset(offset).all():
-            rows.append(marshal(row, Games.response_fields))
-
-        return rows, 200
-
-
-class GamePopularResource(Resource):
-    def options(self, id=None):
-        return {'status': 'ok'}, 200
-
-    def get(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument('p', type=int, location='args', default=1)
-        parser.add_argument('rp', type=int, location='args', default=25)
-
-        args = parser.parse_args()
-        offset = (args['p']*args['rp'])-args['rp']
-
-        qry = Games.query.order_by(desc(Games.sold))
-
-        rows = []
-        for row in qry.limit(args['rp']).offset(offset).all():
-            rows.append(marshal(row, Games.response_fields))
-
-        return rows, 200
 
 # ============================================= Voucher ==============================================
 
@@ -303,29 +151,21 @@ class GameVoucherResource(Resource):
     def options(self, id=None):
         return {'status': 'ok'}, 200
 
-    def get(self, game):
-        gameName = Games.query.filter_by(
-            name=game.lower().replace('-', ' ')).first()
-        gameId = gameName.id
-        qry = GameVouchers.query.filter_by(game_id=gameId).first()
-        if qry is not None:
-            return marshal(qry, GameVouchers.response_fields), 200
-        return {'status': 'NOT_FOUND'}, 404
-
     @seller_required
-    def post(self, game):
+    def post(self):
         parser = reqparse.RequestParser()
+        parser.add_argument('name', location='json', required=True)
         parser.add_argument('voucher', location='json', required=True)
-        parser.add_argument('price', location='json', required=True)
-
-        gameName = Games.query.filter_by(
-            name=game.lower().replace('-', ' ')).first()
-        if gameName is None:
-            return {"message": "Game Not Available"}, 404
-
-        game_id = gameName.id
-
+        parser.add_argument('price', location='json', type=int, required=True)
         args = parser.parse_args()
+
+        qry = Games.query.filter_by(
+            name=args['name']).first()
+        if qry is None:
+            return {'status': 'NOT_FOUND'}, 404
+
+        game_id = qry.id
+
         voucher = GameVouchers(game_id, args['voucher'], args['price'])
         db.session.add(voucher)
         db.session.commit()
@@ -335,40 +175,69 @@ class GameVoucherResource(Resource):
         return marshal(voucher, GameVouchers.response_fields), 200, {'Content-Type': 'application/json'}
 
     @seller_required
-    def patch(self, game):
+    def put(self):
         parser = reqparse.RequestParser()
+        parser.add_argument('gameName', location='json', required=True)
         parser.add_argument('voucher', location='json', required=True)
-        parser.add_argument('price', location='json', required=True)
+        parser.add_argument('newVoucher', location='json')
+        parser.add_argument('price', location='json')
         args = parser.parse_args()
 
-        gameName = Games.query.filter_by(
-            name=game.lower().replace('-', ' ')).first()
+        gameName = Games.query.filter_by(name=args['gameName']).first()
         gameId = gameName.id
-        qry = GameVouchers.query.filter_by(game_id=gameId).first()
+        qry = GameVouchers.query.filter_by(game_id=gameId, voucher=args['voucher']).first()
         if qry is None:
             return {'status': 'NOT_FOUND'}, 404
 
-        qry.voucher = args['voucher']
-        qry.price = args['price']
-
+        if args['newVoucher'] is not None:
+            qry.newVoucher = args['newVoucher']
+        if args['price'] is not None:
+            qry.price = args['price']
+            
         db.session.commit()
 
         return marshal(qry, GameVouchers.response_fields), 200, {'Content-Type': 'application/json'}
 
     @seller_required
-    def delete(self, game):
-        gameName = Games.query.filter_by(
-            name=game.lower().replace('-', ' ')).first()
-        gameId = gameName.id
-        qry = GameVouchers.query.filter_by(game_id=gameId).first()
-        if qry is None:
-            return {'status': 'NOT_FOUND'}, 404
+    def delete(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('gameName', location='args', required=True)
+        parser.add_argument('voucher', location='args', required=True)
+        args = parser.parse_args()
 
-        db.session.delete(qry)
+        game = Games.query.filter_by(name=args['gameName']).first()
+        if game is None:
+            return {'status': 'NOT_FOUND'}, 404
+        game_id = game.id
+
+        voucher = GameVouchers.query.filter_by(game_id=game_id, voucher=args['voucher'] ).first()
+
+        db.session.delete(voucher)
         db.session.commit()
 
         return {'status': 'DELETED'}, 200
 
+class GameVoucherResourceGet(Resource):
+    def options(self, id=None):
+        return {'status': 'ok'}, 200
+
+    def get(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('gameName', location='args', required=True)
+        # parser.add_argument('voucher', location='args')
+        args = parser.parse_args()
+
+        game = Games.query.filter_by(name=args['gameName']).first()
+        if game is None:
+            return {'status': 'GAME_NOT_FOUND'}, 404
+
+        game_id = game.id
+        voucher = GameVouchers.query.filter_by(game_id=game_id).all()
+
+        if voucher is None:
+            return {'status': 'VOUCHER_NOT_FOUND'}, 404
+        else : 
+            return marshal(voucher, GameVouchers.response_fields), 200, {'Content-Type': 'application/json'}
 
 class GameVoucherListResource(Resource):
     def options(self, id=None):
@@ -417,12 +286,9 @@ class GameVoucherListResource(Resource):
 
 
 api.add_resource(GameResource, '')
+api.add_resource(GameVoucherResource, '/voucher')
 
-api_public.add_resource(GameDetailResource, '/<id>')
-api_public.add_resource(GameFilterResource, '')
-api_public.add_resource(GamePromoResource, '/promo')
-api_public.add_resource(GameSearchResource, '/search')
-api_public.add_resource(GamePopularResource, '/popular')
+api_public.add_resource(GameDetailResource, '')
 
-api.add_resource(GameVoucherResource, '/<game>/voucher')
-api.add_resource(GameVoucherListResource, '/voucher')
+api_public_voucher.add_resource(GameVoucherResourceGet, '')
+api_public_voucher.add_resource(GameVoucherListResource, '/list')

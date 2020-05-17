@@ -61,13 +61,11 @@ class UserResource(Resource):
         return {'status': 'NOT_FOUND'}, 404
 
     @buyer_required
-    def patch(self):
+    def put(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('username', location='json')
-        parser.add_argument('password', location='json')
         parser.add_argument('name', location='json')
         parser.add_argument('email', location='json')
-        # parser.add_argument('avatar', location='json')
+        parser.add_argument('avatar', location='json')
         parser.add_argument('address', location='json')
         parser.add_argument('phone', location='json')
         args = parser.parse_args()
@@ -76,21 +74,31 @@ class UserResource(Resource):
         userId = claims['id']
         qry = Users.query.filter_by(id=userId).first()
         
-        qry.username = args['username']
-        qry.password = args['password']
-        qry.name = args['name']
-        qry.email = args['email']
-        # qry.email = args['avatar']
-        qry.address = args['address']
-        qry.phone = args['phone']
-        qry.status = args['status']
+        if args['name'] is not None:
+            qry.name = args['name']
+        if args['email'] is not None:
+            qry.email = args['email']
+        if args['address'] is not None:
+            qry.address = args['address']
+        if args['phone'] is not None:
+            qry.phone = args['phone']
+        if args['avatar'] is not None:
+            qry.avatar = args['avatar']
+            
         db.session.commit()
 
         return marshal(qry, Users.response_fields), 200, {'Content-Type': 'application/json'}
 
+class UserDeleteResource(Resource):
+    def options(self, id=None):
+        return {'status': 'ok'}, 200
+
     @seller_required
-    def delete(self, id):
-        qry = Users.query.get(id)
+    def delete(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('username', location='json')
+        args = parser.parse_args()
+        qry = Users.query.filter_by(username=args['username']).first()
         if qry is None:
             return {'status': 'NOT_FOUND'}, 404
 
@@ -151,4 +159,5 @@ class UserList(Resource):
 
 api.add_resource(UserList, '/list')
 api.add_resource(UserResourceSignUp, '')
-api.add_resource(UserResource, '/me', '/<id>')
+api.add_resource(UserDeleteResource, '/delete')
+api.add_resource(UserResource, '/me')
