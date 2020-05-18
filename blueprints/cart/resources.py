@@ -40,45 +40,41 @@ class CartResource(Resource):
 
         game_id = voucher.game_id
         cart = Carts.query.filter_by(user_id=user_id, game_id=game_id, status=True).first()
-        priceTotal = 0
+
         if cart is None:
             cart = Carts(user_id, gameId)
             db.session.add(cart)
             db.session.commit()
 
 
-        tdetails = TransactionDetails.query.filter_by(cart_id = cart.id).first()
+        tdetails = TransactionDetails.query.filter_by(cart_id = cart.id, game_id=gameId, ign=args["ign"], voucher_id = voucher.id).first()
         if tdetails is None:
-            # jika transdet kosong
+            # jika voucher tidak ada di transdet
             td = TransactionDetails(cart.id, gameId, args["ign"], voucher.id, 1, 0)
             db.session.add(td)
             db.session.commit()
 
         else :
-            tdetails = TransactionDetails.query.filter_by(game_id=gameId, ign=args["ign"], voucher_id = voucher.id).first()
-            if tdetails is None:
-                # jika voucher tidak ada di transdet
-                td = TransactionDetails(cart.id, gameId, args["ign"], voucher.id, 1, 0)
-                db.session.add(td)
-                db.session.commit()
+            # jika voucher ada di transdet
+            tdetails.quantity += 1
+            db.session.commit()
 
-            else :
-                # jika voucher ada di transdet
-                tdetails.quantity += 1
-                db.session.commit()
-        
-        tdetails = TransactionDetails.query.filter_by(game_id=gameId, ign=args["ign"], voucher_id = voucher.id).first()
+        tdetails = TransactionDetails.query.filter_by(cart_id = cart.id, game_id=gameId, ign=args["ign"], voucher_id = voucher.id).first()
         if game.promo:
             price = ((int(voucher.price) - (int(game.discount)/100*int(voucher.price))))
             tdetails.price += price
+            db.session.commit()
+
         else:
             price = (int(voucher.price))
             tdetails.price += price
+            db.session.commit()
 
-        cart_item = Carts.query.filter_by(user_id=user_id, game_id=game_id).first()
+        cart_item = Carts.query.filter_by(user_id=user_id, game_id=game_id, status=True).first()
 
         cart_item.total_price_item += price
         cart_item.updated_at = datetime.now()
+        db.session.commit()
 
         carts = Carts.query.filter_by(user_id=user_id, status=True).all()
         total = 0
@@ -300,7 +296,17 @@ class CartCheckout(Resource):
             cart.status = False
             cart.updated_at = datetime.now()
 
-            db.session.commit()
+
+            gameID = cart.game_id
+            game = Games.query.get(gameID)
+
+            tdetails = TransactionDetails.query.filter_by(cart_id=cart.id).all()
+            for detail in tdetails:
+                voucherQry = GameVouchers.query.get(detail.voucher_id)
+                td = TransactionDetails.query.filter_by(cart_id=cart.id, voucher_id=voucherQry.id).first()
+                game.sold += td.quantity
+
+        db.session.commit()
         return marshal(carts, Carts.response_fields), 200, {'Content-Type': 'application/json'}
 
 api.add_resource(TransactionDetail, "/detail")
