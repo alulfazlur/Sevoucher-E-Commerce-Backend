@@ -225,6 +225,8 @@ class TransactionDetail(Resource):
         db.session.commit()
         return {"message": 'Deleted'}, 200
 
+        # return marshal(self.get, TransactionDetails.response_fields), 200, {'Content-Type': 'application/json'}
+
 class CartResume(Resource):
     def options(self, id=None):
         return {'status': 'ok'}, 200

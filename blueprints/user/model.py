@@ -50,13 +50,13 @@ class Users(db.Model):
     }
 
     def __init__(self, username, password, name, email,
-     avatar, 
+    #  avatar, 
      address, phone, status, salt):
         self.username = username
         self.password = password
         self.name = name
         self.email = email
-        self.avatar = avatar
+        # self.avatar = avatar
         self.address = address
         self.phone = phone
         self.status = status

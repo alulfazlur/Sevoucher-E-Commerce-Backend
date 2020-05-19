@@ -96,7 +96,7 @@ class UserDeleteResource(Resource):
     @seller_required
     def delete(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('username', location='json')
+        parser.add_argument('username', location='args', required=True)
         args = parser.parse_args()
         qry = Users.query.filter_by(username=args['username']).first()
         if qry is None:
