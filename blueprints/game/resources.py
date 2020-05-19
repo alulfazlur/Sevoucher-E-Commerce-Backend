@@ -65,7 +65,7 @@ class GameResource(Resource):
         parser.add_argument('banner', location='json')
         parser.add_argument('publisher', location='json')
         parser.add_argument('description', location='json')
-        parser.add_argument('category', location='json', choices=('mobile', 'pc', 'credits'))
+        parser.add_argument('category', location='json', choices=('mobile', 'pc', 'credits'), required=False)
         parser.add_argument('gplay', location='json')
         parser.add_argument('appstore', location='json')
         parser.add_argument('website', location='json')
