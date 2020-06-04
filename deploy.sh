@@ -7,7 +7,7 @@ ssh-add -k ~/.ssh/id_rsa &&
 
 source ~/.profile
 echo "$DOCKER_PASSWORD" | docker login --username $DOCKER_USERNAME --password-stdin
-docker stop flaskdemo
-docker rm flaskdemo
-docker rmi alulfazlur/flask-tutorial:latest
-docker run -d --name flaskdemo -p 9000:9000 alulfazlur/flask-tutorial:latest
+sudo docker stop flaskdemo
+sudo docker rm flaskdemo
+sudo docker rmi alulfazlur/flask-tutorial:latest
+sudo docker run -d --name flaskdemo -p 9000:9000 alulfazlur/flask-tutorial:latest
