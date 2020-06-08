@@ -108,3 +108,7 @@ app.register_blueprint(bp_user, url_prefix='/user')
 app.register_blueprint(bp_cart, url_prefix='/cart')
 
 db.create_all()
+
+@app.route('/')
+def hello_world():
+        return {"message": "This is Sevoucher Bakend by Fazlur Rahman!"}, 200
