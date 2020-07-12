@@ -3,7 +3,7 @@ https://sevoucher.fazlurtech.my.id
 
 ## Description
 This project is a self-made game voucher ecommerce website with React-redux.
-![Apps preview](/src/images/image.png)
+![Apps preview](/src/images/image-sevoucher.png)
 
 ## Features
 * User login
